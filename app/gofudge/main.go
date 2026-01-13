@@ -510,7 +510,7 @@ func handleRoom(w http.ResponseWriter, r *http.Request) {
 		    <div style="display: flex; gap: 5px; align-items: center;">
 			<button onclick="adjustModifier(-1)" style="flex: 0 0 40px; padding: 10px;">−</button>
 			<input type="text" id="modifier" class="modifier-input" placeholder="Modifier (±)" value="0" style="flex: 0 0 100px;">
-			<button onclick="adjustModifier(1)" style="flex: 0 0 40px; padding: 10px;">+</button>
+			<button onclick="adjustModifier(1)" style="flex: 0 0 40px; padding: 10px; margin: 5px 15px 5px 5px;">+</button>
 		    </div>
 		    <button onclick="rollDice()">Roll Fudge Dice</button>
 		</div>
