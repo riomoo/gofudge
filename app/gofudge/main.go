@@ -506,10 +506,14 @@ func handleRoom(w http.ResponseWriter, r *http.Request) {
 
         <div class="roll-section">
             <h2 style="margin-bottom: 15px;">Roll Dice</h2>
-            <div class="roll-controls">
-                <input type="number" id="modifier" placeholder="Modifier (±)" value="0">
-                <button onclick="rollDice()">Roll Fuge Dice</button>
-            </div>
+		<div class="roll-controls">
+		    <div style="display: flex; gap: 5px; align-items: center;">
+			<button onclick="adjustModifier(-1)" style="flex: 0 0 40px; padding: 10px;">−</button>
+			<input type="text" id="modifier" class="modifier-input" placeholder="Modifier (±)" value="0" style="flex: 0 0 100px;">
+			<button onclick="adjustModifier(1)" style="flex: 0 0 40px; padding: 10px;">+</button>
+		    </div>
+		    <button onclick="rollDice()">Roll Fudge Dice</button>
+		</div>
         </div>
 
         <div class="history">
@@ -525,7 +529,7 @@ func handleRoom(w http.ResponseWriter, r *http.Request) {
     <script>
         const roomId = '{{.RoomID}}';
         const username = '{{.Username}}';
-        const ws = new WebSocket('ws://' + window.location.host + '/ws?room=' + roomId + '&username=' + encodeURIComponent(username));
+	const ws = new WebSocket((window.location.protocol === 'https:' ? 'wss://' : 'ws://') + window.location.host + '/ws?room=' + roomId + '&username=' + encodeURIComponent(username));
 
         document.getElementById('inviteLink').textContent = window.location.origin + '/room/' + roomId;
 
@@ -533,6 +537,21 @@ func handleRoom(w http.ResponseWriter, r *http.Request) {
             navigator.clipboard.writeText(window.location.origin + '/room/' + roomId);
             alert('Invite link copied!');
         }
+	function adjustModifier(amount) {
+		const input = document.getElementById('modifier');
+		const currentValue = parseInt(input.value) || 0;
+		input.value = currentValue + amount;
+	}
+
+	document.addEventListener('DOMContentLoaded', function() {
+	    document.getElementById('modifier').addEventListener('input', function(e) {
+		// Allow empty, minus sign, and numbers
+		if (e.target.value !== '' && e.target.value !== '-' && isNaN(parseInt(e.target.value))) {
+		    e.target.value = e.target.value.slice(0, -1);
+		}
+	    });
+	});
+
 
         ws.onmessage = function(event) {
             const msg = JSON.parse(event.data);
