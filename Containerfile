@@ -28,7 +28,7 @@ RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -ldflags="-s -w -extldflag
 RUN upx --best --ultra-brute bin/main
 RUN chmod +x bin/main
 
-FROM scratch
+FROM git.jester-designs.com/riomoo/alisterbase:1.0.0
 WORKDIR /app
 
 # Copy only the built binary and necessary directories
