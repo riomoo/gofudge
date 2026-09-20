@@ -1,6 +1,29 @@
-# GoFudge
+<p align="center">
+  <img src="images/favicon-border-name.svg" width="256" height="256" alt="GoFudge logo">
+</p>
 
-A Fudge Dice rolling room programmed in Go
+A real-time Fudge Dice rolling room, built in Go.
+
+Spin up a lightweight room, share the link, and roll 4dF together over a live WebSocket connection. No accounts, no database, just you, your friends, and the dice.
+
+## Features
+
+- **Real-time rooms** - every roll, join, and departure is pushed to the whole table instantly over WebSockets.
+- **Shareable invite links** - create a room, copy the link, and send it to your group. Anyone who opens it just picks a username and they're in.
+- **4dF rolls** - rolls four Fudge dice (+, −, blank) and adds your modifier for the total, exactly like a tabletop session.
+- **Synced roll history** - the whole room's history replays for anyone who joins late or reconnects, so nobody misses a beat.
+- **Live player list** - see who's at the table in real time, with join and leave notifications as people come and go.
+- **Automatic reconnect** - dropped connections retry on their own and pick back up the moment your tab regains focus.
+- **Minimal footprint** - a single static Go binary, UPX compressed, that runs comfortably in a 75 MB container.
+- **Self-cleaning rooms** - empty rooms are torn down automatically after a short grace period, so nothing lingers.
+
+## Where the randomness comes from
+
+Every roll is generated with Go's standard `math/rand` package: a fast, deterministic pseudo-random number generator (PRNG) that's seeded once when the server starts. Each Fudge die just asks that generator for a number between 0 and 2 and maps it to −, blank, or +.
+
+That's intentionally lightweight, and on purpose. A Fudge roll isn't a security problem the way a lottery draw or a casino RNG is; there's no adversary trying to predict your next roll to steal something. Reaching for `crypto/rand` or a memory-hard algorithm like RandomX would add real overhead for a guarantee nobody at the table actually needs.
+
+If you wanted to raise the trust bar anyway, say for streamed or competitive play where people might get suspicious of the server rolling this, `crypto/rand` is the natural next step. It's cryptographically secure, pulls from the OS's entropy pool, and is still part of the standard library, so it's a small swap.
 
 ## License
 
@@ -20,21 +43,23 @@ go build -o gofudge app/gofudge/main.go
 ./gofudge
 ```
 - Visit http://localhost:8080 in your browser.
-- Upon visiting the URL you will be created with a username entry and Create room button. After that you will be in the room.
-- (If you are hosting this publicly) You can copy the room link in the top right hand corner and share it to anyone. They will be prompted to also pick a username.
-- From there you may increase/decrease the modifier as needed for the skill you are rolling for.
+- You'll be greeted with a username field and a Create Room button. Fill it in and you're dropped straight into the room.
+- (If you're hosting this publicly) Copy the room link from the top right corner and share it with anyone. They'll be prompted to pick a username too before joining.
+- From there, adjust the modifier up or down for whatever skill you're rolling against, and hit Roll.
 
 
-## If you want to use this with podman:
+## Running with Podman
+
 ```bash
 git clone https://codeberg.org/riomoo/gofudge.git
 cd gofudge
-./scripts-bash/run.sh
+make build-labeled-image
+make start-container
 ```
 
 Then open http://localhost:12007 in your browser.
 
-## Config for NGINX to use as a website:
+## NGINX config, if you're hosting this as a website
 ```
 upstream gofudge {
         server 127.0.0.1:8080;
